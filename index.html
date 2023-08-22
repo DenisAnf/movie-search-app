@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+      <meta name="Author" content="Denis A" />
+      <meta name="Copyright" content="Denis A" />
+      <meta name="Address" content="Санкт-Петербург" />
+
+      <meta property="og:locale" content="ru_RU" />
+      <meta property="og:type" content="article" />
+      <meta property="og:site_name" content="Movies search" />
+      <meta property="og:title" content="Поиск фильмов" />
+      <meta property="og:description" content="Найти фильм или сериал?" />
+      <meta property="og:image" content="./resourses/img/searchMovie.webp" />
+      <meta
+         property="og:url"
+         content="https://denisanf.github.io/movie-search-app"
+      />
+
+      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:site" content="Denis A" />
+      <meta name="twitter:title" content="Поиск фильмов" />
+      <meta name="twitter:description" content="Найти фильм или сериал?" />
+      <meta name="twitter:image" content="./resourses/img/searchMovie.webp" />
+
+      <link rel="stylesheet" href="styles/style.css" />
+      <title>Поиск фильмов</title>
+      <link rel="shortcut icon" href="./resourses/img/icon/favicon.ico" />
+   </head>
+   <body>
+      <header class="header">
+         <div class="container">
+            <h1 class="header__title">Найти фильм или сериал?</h1>
+         </div>
+      </header>
+
+      <main class="page">
+         <div class="container">
+            <section class="request">
+               <form action="" class="form">
+                  <input
+                     type="text"
+                     id="filmName"
+                     class="form__search"
+                     placeholder="Введите название"
+                  />
+                  <button
+                     type="button"
+                     id="filmSearchButton"
+                     class="form__searchBtn"
+                  ></button>
+               </form>
+               <div id="filmError" class="request__error">sfsdfsd</div>
+            </section>
+
+            <section id="movies" class="movies">
+               <ul class="movies__list">
+                  <li class="movies__list-item">
+                     <img
+                        class="movie__img"
+                        src="./resourses/img/searchMovie.webp"
+                        alt="Постер фильма"
+                     />
+                     <div class="movie__description">
+                        <p class="movie__title">Gravity</p>
+                        <p class="movie__year">2022</p>
+                        <p class="movie__type">Film</p>
+                     </div>
+                  </li>
+               </ul>
+            </section>
+         </div>
+      </main>
+
+      <footer class="footer">
+         <div class="footer__telegram">
+            <a target="_blank" href="https://t.me/Denis_Bear_A">
+               @Denis_Bear_A
+            </a>
+         </div>
+         <div class="footer__cr">SC.CODE — 2023</div>
+      </footer>
+
+      <!--<script src="js/index.js"></script>-->
+   </body>
+</html>
