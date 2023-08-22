@@ -313,6 +313,7 @@ body {
 .movie__type {
   font-size: 20px;
   line-height: 20px;
+  color: rgb(250, 235, 207);
 }
 @media (max-width: 699px) {
   .movie__type {
