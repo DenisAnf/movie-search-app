@@ -11,7 +11,10 @@ const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
 let films = [];
 
 const apiOmdbLink = "//www.omdbapi.com/";
-const apiKey = "e47d08b8";
+const apiOmdbKey = "e47d08b8";
+const apiTranslateLink =
+   "https://translated-mymemory---translation-memory.p.rapidapi.com/get";
+const apiTranslateKey = "9ffd4a8b32mshe8145e4c83e463bp1d5e15jsnfaa3c9332f3f";
 
 function FilmBanner(id, img, title, year, type) {
    this.id = id;
@@ -77,7 +80,7 @@ const searchFilmInApi = (name) => {
 
    const queryParams = new URLSearchParams({
       s: name,
-      apikey: apiKey,
+      apikey: apiOmdbKey,
    });
 
    fetch(`${apiOmdbLink}?${queryParams}`, options)
@@ -118,6 +121,43 @@ const searchFilmInApi = (name) => {
       });
 };
 
+const translate = async (textToTranslate) => {
+   const options = {
+      method: "GET",
+      headers: {
+         //"Accept-Encoding": "application/json",
+         "X-RapidAPI-Key": apiTranslateKey,
+         "X-RapidAPI-Host":
+            "translated-mymemory---translation-memory.p.rapidapi.com",
+      },
+   };
+
+   const queryParams = new URLSearchParams({
+      langpair: "ru|en",
+      q: textToTranslate,
+   });
+
+   try {
+      const response = await fetch(
+         `${apiTranslateLink}?${queryParams}`,
+         options
+      );
+
+      if (!response.ok) {
+         //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
+         return textToTranslate;
+      }
+
+      const result = await response.json();
+      const translatedText = result.matches[0].translation;
+      //console.log(`${textToTranslate} перевод ${translatedText}`);
+      return translatedText;
+   } catch (error) {
+      //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
+      return textToTranslate;
+   }
+};
+
 const clearFilmNode = () => (filmNameNode.value = "");
 
 const validationFilmNameFromUser = () => {
@@ -152,9 +192,13 @@ const searchFilmHandler = () => {
    films = [];
    filmErrorNode.textContent = "";
 
-   const filmFromUser = filmNameNode.value;
+   const filmNameFromUser = filmNameNode.value;
 
-   searchFilmInApi(filmFromUser);
+   const getTranslation = async () => {
+      const filmNameAfterTranslation = await translate(filmNameFromUser);
+      searchFilmInApi(filmNameAfterTranslation);
+   };
+   getTranslation();
    clearFilmNode();
 };
 
@@ -194,7 +238,7 @@ const getFilmsFromLocalStorage = () => {
 filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
 
-//! вариант с замена fetch + then на async + fetch
+//! вариант с заменой fetch + then на async + fetch
 /*async function searchFilmInApi(name) {
    const options = {
       method: "GET",
@@ -205,7 +249,7 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
 
    const queryParams = new URLSearchParams({
       s: name,
-      apikey: apiKey,
+      apikey: apiOmdbKey,
    });
 
    try {
@@ -247,9 +291,62 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
 
       renderFilms();
    } catch (error) {
-      filmErrorNode.textContent = `Ошибка API: ${error}`;
+      filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
    }
-}*/
+}
+
+const translate = async (textToTranslate) => {
+   const options = {
+      method: "GET",
+      headers: {
+         //"Accept-Encoding": "application/json",
+         "X-RapidAPI-Key": apiTranslateKey,
+         "X-RapidAPI-Host":
+            "translated-mymemory---translation-memory.p.rapidapi.com",
+      },
+   };
+
+   const queryParams = new URLSearchParams({
+      langpair: "ru|en",
+      q: textToTranslate,
+   });
+
+   try {
+      const response = await fetch(
+         `${apiTranslateLink}?${queryParams}`,
+         options
+      );
+
+      if (!response.ok) {
+         //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
+         return textToTranslate;
+      }
+
+      const result = await response.json();
+      const translatedText = result.matches[0].translation;
+      //console.log(`${textToTranslate} перевод ${translatedText}`);
+      return translatedText;
+   } catch (error) {
+      //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
+      return textToTranslate;
+   }
+};
+
+const searchFilmHandler = () => {
+   if (validationFilmNameFromUser()) return;
+
+   films = [];
+   filmErrorNode.textContent = "";
+
+   const filmNameFromUser = filmNameNode.value;
+
+   const getTranslation = async () => {
+      const filmNameAfterTranslation = await translate(filmNameFromUser);
+      searchFilmInApi(filmNameAfterTranslation);
+   };
+   getTranslation();
+   clearFilmNode();
+};*/
 
 //!Валидация url на 404 не работает из-за cors
 /*const validationUrl = async (url, forNotFound) => {
