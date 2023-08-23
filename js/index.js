@@ -1,165 +1,201 @@
-const filmNameNode = document.querySelector('#filmName');
-const filmAddButton = document.querySelector('#filmAddButton');
-const filmErrorNode = document.querySelector('#filmError');
-const filmsOutputNode = document.querySelector('#movies');
+const filmNameNode = document.getElementById("filmName");
+const filmSearchButton = document.getElementById("#filmSearchButton");
+const filmErrorNode = document.getElementById("filmError");
+const filmsOutputNode = document.getElementById("movies");
 
 const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
-const STORAGE_LABEL_MOVIES = 'movies';
+//const STORAGE_LABEL_MOVIES = "movies";
 
 let films = [];
 
-const saveFilmsToLocalStorage = () => {
-	const filmsString = JSON.stringify(films);
-	localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
+const apiOmdbLink = "//www.omdbapi.com/";
+const apiKey = "e47d08b8";
+
+function FilmBanner(id, img, title, year, type) {
+   this.id = id;
+   this.img = img;
+   this.title = title;
+   this.year = year;
+   this.type = type;
 }
 
-const getFilmsFromLocalStorage = () => {
-	const filmsFromLocalStorageString = localStorage.getItem(STORAGE_LABEL_MOVIES);
-	const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
+const addFilmToBill = (film) => films.push(film);
 
-	if (Array.isArray(filmsFromLocalStorage)) {
-		films = filmsFromLocalStorage;
-		
-	}
-}
-
-function Film(name) {
-	this.name = name;
-	this.check = 'unchecked';
-};
-
-const getFilmFromUser = () => {
-	const filmFromUser = filmNameNode.value;
-	
-	const film = new Film(filmFromUser);
-	return film;
-};
-
-const addFilmToCatalog = (film) => films.push(film);
-
-const getfilms = () => films;
+const getFilms = () => films;
 
 const renderFilms = () => {
-	filmsOutputNode.innerHTML = '';
+   filmsOutputNode.innerHTML = "";
 
-	const catalogContainer = document.createElement('ul');
-	catalogContainer.className = 'movies__list';
+   const billContainer = document.createElement("ul");
+   billContainer.className = "movies__list";
 
-	const catalog = getfilms();
+   const bill = getFilms();
+   bill.forEach((element) => {
+      const elFilm = document.createElement("li");
+      const elFilmImage = document.createElement("img");
+      const elFilmDescription = document.createElement("div");
+      const elFilmTitle = document.createElement("p");
+      const elFilmYear = document.createElement("p");
+      const elFilmType = document.createElement("p");
 
-	catalog.forEach((element, index) => {
-		const catalogEl = document.createElement('li');
-		const catalogElLabel = document.createElement('label');
-		const catalogElCheckbox = document.createElement('input');
-		const catalogElFakecheckbox = document.createElement('div');
-		const catalogElTitle = document.createElement('span');
-		const catalogElDeleteBtn = document.createElement('button');
-		
-		catalogEl.className = 'movies__list-item';
-		catalogElLabel.className = 'movie';
-		catalogElCheckbox.className = 'movie__checkbox';
-		catalogElFakecheckbox.className = 'movie__fakecheckbox';
-		catalogElTitle.className = 'movie__title';
-		catalogElDeleteBtn.className = 'movie__deleteBtn';
+      elFilm.className = "movies__list-item";
+      elFilmImage.className = "movie__img";
+      elFilmDescription.className = "movie__description";
+      elFilmTitle.className = "movie__title";
+      elFilmYear.className = "movie__year";
+      elFilmType.className = "movie__type";
 
-		catalogEl.setAttribute('id', index);
-		catalogElCheckbox.setAttribute('type', 'checkbox');
-		catalogElCheckbox.setAttribute(element.check, '');
-		catalogElDeleteBtn.setAttribute('id', index);
+      elFilm.setAttribute("id", element.id);
+      elFilmImage.setAttribute("src", element.img);
+      elFilmImage.setAttribute("alt", "Постер фильма или сериала");
 
-		catalogElTitle.innerText = element.name;
+      elFilmTitle.innerText = element.title;
+      elFilmYear.innerText = element.year;
+      elFilmType.innerText = element.type;
 
-		catalogEl.appendChild(catalogElLabel);
-		catalogElLabel.appendChild(catalogElCheckbox);
-		catalogElLabel.appendChild(catalogElFakecheckbox);
-		catalogElLabel.appendChild(catalogElTitle);
-		catalogElLabel.appendChild(catalogElDeleteBtn);
+      elFilm.appendChild(elFilmImage);
+      elFilm.appendChild(elFilmDescription);
+      elFilmDescription.appendChild(elFilmTitle);
+      elFilmDescription.appendChild(elFilmYear);
+      elFilmDescription.appendChild(elFilmType);
 
-		catalogContainer.appendChild(catalogEl);
+      billContainer.appendChild(elFilm);
+   });
 
-		catalogElCheckbox.addEventListener('click', () => {
-			if (element.check === 'unchecked') {
-				element.check = 'checked';
-			} else {
-				element.check = 'unchecked';
-			}
-			saveFilmsToLocalStorage();
-		});
-
-		catalogElDeleteBtn.addEventListener('click', () => {
-			films.splice(index, 1);
-			saveFilmsToLocalStorage();
-			renderFilms();
-		});
-	});
-
-	filmsOutputNode.appendChild(catalogContainer);
+   filmsOutputNode.appendChild(billContainer);
 };
 
-const clearFilmNode = () => filmNameNode.value = '';
+//замена fetch + then
+async function searchFilmInApi(name) {
+   const options = {
+      method: "GET",
+      headers: {
+         "Accept-Encoding": "application/json",
+      },
+   };
 
-const validationFilmNameFromUser = () => {
-	const filmFromUser = filmNameNode.value;
-	const lengthFilmFromUser = filmFromUser.length;
-	const filmFromUserWithoutSpace = filmFromUser.replace(REG_SPACES_PUNСTUATION_MARKS, '');
-	const lengthFilmFromUserWithoutSpace = filmFromUserWithoutSpace.length;
+   const queryParams = new URLSearchParams({
+      s: name,
+      apikey: apiKey,
+   });
 
-	if (!filmFromUser || lengthFilmFromUserWithoutSpace == 0) {
-		filmErrorNode.textContent = 'Введите название фильма';
-		clearFilmNode();
-		filmNameNode.focus();
-		return true;
-	};
+   try {
+      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
 
-	if (lengthFilmFromUser > LIMIT_LENGTH_FILM_NAME) {
-		filmErrorNode.textContent = `Не бывает фильмов длинее 130 символов (${lengthFilmFromUser}/${LIMIT_LENGTH_FILM_NAME})`;
-		filmNameNode.focus();
-		return true;
-	};
+      if (!response.ok) {
+         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+         return;
+      }
 
-	filmErrorNode.textContent = '';
-	return false;
+      const result = await response.json();
+
+      await Promise.all(
+         //замена forEach без Promise.all
+         result.Search.map(async (element) => {
+            const filmImdbId = element.imdbID;
+            const filmPosterLink = element.Poster;
+            const filmTitle = element.Title;
+            const filmYear = element.Year;
+            const filmType = element.Type;
+
+            const film = new FilmBanner(
+               filmImdbId,
+               filmPosterLink,
+               filmTitle,
+               filmYear,
+               filmType
+            );
+
+            addFilmToBill(film);
+         })
+      );
+      renderFilms();
+   } catch (error) {
+      filmErrorNode.textContent = `Ошибка API: ${error}`;
+   }
+}
+
+searchFilmInApi("gravity");
+
+//const clearFilmNode = () => (filmNameNode.value = "");
+
+//buttonShowIdea.addEventListener("click", getActivity);
+
+/*const saveFilmsToLocalStorage = () => {
+   const filmsString = JSON.stringify(films);
+   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
+};
+
+const getFilmsFromLocalStorage = () => {
+   const filmsFromLocalStorageString =
+      localStorage.getItem(STORAGE_LABEL_MOVIES);
+   const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
+
+   if (Array.isArray(filmsFromLocalStorage)) {
+      films = filmsFromLocalStorage;
+   }
+};*/
+
+/*
+const getFilmFromUser = () => {
+   const filmFromUser = filmNameNode.value;
+
+   const film = new Film(filmFromUser);
+   return film;
+};*/
+
+/*const validationFilmNameFromUser = () => {
+   const filmFromUser = filmNameNode.value;
+   const lengthFilmFromUser = filmFromUser.length;
+   const filmFromUserWithoutSpace = filmFromUser.replace(
+      REG_SPACES_PUNСTUATION_MARKS,
+      ""
+   );
+   const lengthFilmFromUserWithoutSpace = filmFromUserWithoutSpace.length;
+
+   if (!filmFromUser || lengthFilmFromUserWithoutSpace == 0) {
+      filmErrorNode.textContent = "Введите название фильма";
+      clearFilmNode();
+      filmNameNode.focus();
+      return true;
+   }
+
+   if (lengthFilmFromUser > LIMIT_LENGTH_FILM_NAME) {
+      filmErrorNode.textContent = `Не бывает фильмов длинее 130 символов (${lengthFilmFromUser}/${LIMIT_LENGTH_FILM_NAME})`;
+      filmNameNode.focus();
+      return true;
+   }
+
+   filmErrorNode.textContent = "";
+   return false;
 };
 
 const addMovieHandler = () => {
-	if (validationFilmNameFromUser()) return;
+   if (validationFilmNameFromUser()) return;
 
-	const movie = getFilmFromUser();
+   const movie = getFilmFromUser();
 
-	addFilmToCatalog(movie);
-	saveFilmsToLocalStorage();
-	renderFilms();
-	clearFilmNode();
+   addFilmTobill(movie);
+   saveFilmsToLocalStorage();
+   renderFilms();
+   clearFilmNode();
 };
 
 const addMovieByEnter = (event) => {
-	if (event.keyCode === 13) {
-		event.preventDefault();
-		addMovieHandler();
-		filmNameNode.focus();
-	};
+   if (event.keyCode === 13) {
+      event.preventDefault();
+      addMovieHandler();
+      filmNameNode.focus();
+   }
 };
 
 const init = () => {
-	getFilmsFromLocalStorage();
-	renderFilms();
-	filmNameNode.focus();
+   getFilmsFromLocalStorage();
+   renderFilms();
+   filmNameNode.focus();
 };
 init();
 
-filmAddButton.addEventListener('click', addMovieHandler);
-filmNameNode.addEventListener('keydown', addMovieByEnter);
-
-
-
-
-
-
-
-
-
-
-
-
-
+filmAddButton.addEventListener("click", addMovieHandler);
+filmNameNode.addEventListener("keydown", addMovieByEnter);*/
