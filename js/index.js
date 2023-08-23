@@ -3,6 +3,7 @@ const filmSearchButton = document.getElementById("filmSearchButton");
 const filmErrorNode = document.getElementById("filmError");
 const filmsOutputNode = document.getElementById("movies");
 
+const IMAGE_TO_FILM_WITHOUT_POSTER = "./resourses/img/searchMovie.webp";
 const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
 //const STORAGE_LABEL_MOVIES = "movies";
@@ -66,8 +67,7 @@ const renderFilms = () => {
    filmsOutputNode.appendChild(billContainer);
 };
 
-//!замена fetch + then
-async function searchFilmInApi(name) {
+const searchFilmInApi = (name) => {
    const options = {
       method: "GET",
       headers: {
@@ -80,21 +80,22 @@ async function searchFilmInApi(name) {
       apikey: apiKey,
    });
 
-   try {
-      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
+   fetch(`${apiOmdbLink}?${queryParams}`, options)
+      .then((response) => {
+         if (!response.ok) {
+            filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+         }
+         return response.json();
+      })
 
-      if (!response.ok) {
-         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
-         return;
-      }
-
-      const result = await response.json();
-
-      await Promise.all(
-         //!замена forEach без Promise.all
-         result.Search.map(async (element) => {
+      .then((data) => {
+         data.Search.forEach((element) => {
             const filmImdbId = element.imdbID;
-            const filmPosterLink = element.Poster;
+            let filmPosterLink =
+               element.Poster === "N/A"
+                  ? IMAGE_TO_FILM_WITHOUT_POSTER
+                  : element.Poster;
+
             const filmTitle = element.Title;
             const filmYear = element.Year;
             const filmType = element.Type;
@@ -108,99 +109,18 @@ async function searchFilmInApi(name) {
             );
 
             addFilmToBill(film);
-         })
-      );
-      renderFilms();
-   } catch (error) {
-      filmErrorNode.textContent = `Ошибка API: ${error}`;
-   }
-}
+         });
+         renderFilms();
+      })
 
-//! вариант с замена fetch + then на async + fetch
-/*async function searchFilmInApi(name) {
-   const options = {
-      method: "GET",
-      headers: {
-         "Accept-Encoding": "application/json",
-      },
-   };
-
-   const queryParams = new URLSearchParams({
-      s: name,
-      apikey: apiKey,
-   });
-
-   try {
-      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
-
-      if (!response.ok) {
-         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
-         return;
-      }
-
-      const result = await response.json();
-
-      await Promise.all(
-         //!вариант с заменой forEach на map + Promise.all
-         result.Search.map(async (element) => {
-            const filmImdbId = element.imdbID;
-            const filmPosterLink = element.Poster;
-            const filmTitle = element.Title;
-            const filmYear = element.Year;
-            const filmType = element.Type;
-
-            const film = new FilmBanner(
-               filmImdbId,
-               filmPosterLink,
-               filmTitle,
-               filmYear,
-               filmType
-            );
-
-            addFilmToBill(film);
-         })
-      );
-      renderFilms();
-   } catch (error) {
-      filmErrorNode.textContent = `Ошибка API: ${error}`;
-   }
-}*/
+      .catch((error) => {
+         filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
+      });
+};
 
 const clearFilmNode = () => (filmNameNode.value = "");
 
-const searchFilmHandler = () => {
-   const filmFromUser = filmNameNode.value;
-
-   searchFilmInApi(filmFromUser);
-   clearFilmNode();
-};
-
-filmSearchButton.addEventListener("click", searchFilmHandler);
-
-/*const saveFilmsToLocalStorage = () => {
-   const filmsString = JSON.stringify(films);
-   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
-};
-
-const getFilmsFromLocalStorage = () => {
-   const filmsFromLocalStorageString =
-      localStorage.getItem(STORAGE_LABEL_MOVIES);
-   const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
-
-   if (Array.isArray(filmsFromLocalStorage)) {
-      films = filmsFromLocalStorage;
-   }
-};*/
-
-/*
-const getFilmFromUser = () => {
-   const filmFromUser = filmNameNode.value;
-
-   const film = new Film(filmFromUser);
-   return film;
-};*/
-
-/*const validationFilmNameFromUser = () => {
+const validationFilmNameFromUser = () => {
    const filmFromUser = filmNameNode.value;
    const lengthFilmFromUser = filmFromUser.length;
    const filmFromUserWithoutSpace = filmFromUser.replace(
@@ -226,31 +146,130 @@ const getFilmFromUser = () => {
    return false;
 };
 
-const addMovieHandler = () => {
+const searchFilmHandler = () => {
    if (validationFilmNameFromUser()) return;
 
-   const movie = getFilmFromUser();
+   films = [];
+   filmErrorNode.textContent = "";
 
-   addFilmTobill(movie);
-   saveFilmsToLocalStorage();
-   renderFilms();
+   const filmFromUser = filmNameNode.value;
+
+   searchFilmInApi(filmFromUser);
    clearFilmNode();
 };
 
-const addMovieByEnter = (event) => {
+const searchFilmByEnter = (event) => {
    if (event.keyCode === 13) {
       event.preventDefault();
-      addMovieHandler();
+      searchFilmHandler();
       filmNameNode.focus();
    }
 };
 
 const init = () => {
-   getFilmsFromLocalStorage();
-   renderFilms();
+   //getFilmsFromLocalStorage();
+   //renderFilms();
    filmNameNode.focus();
 };
 init();
 
-filmAddButton.addEventListener("click", addMovieHandler);
-filmNameNode.addEventListener("keydown", addMovieByEnter);*/
+//saveFilmsToLocalStorage();
+
+//?СТАРОЕ
+/*const saveFilmsToLocalStorage = () => {
+   const filmsString = JSON.stringify(films);
+   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
+};
+
+const getFilmsFromLocalStorage = () => {
+   const filmsFromLocalStorageString =
+      localStorage.getItem(STORAGE_LABEL_MOVIES);
+   const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
+
+   if (Array.isArray(filmsFromLocalStorage)) {
+      films = filmsFromLocalStorage;
+   }
+};*/
+
+filmSearchButton.addEventListener("click", searchFilmHandler);
+filmNameNode.addEventListener("keydown", searchFilmByEnter);
+
+//! вариант с замена fetch + then на async + fetch
+/*async function searchFilmInApi(name) {
+   const options = {
+      method: "GET",
+      headers: {
+         "Accept-Encoding": "application/json",
+      },
+   };
+
+   const queryParams = new URLSearchParams({
+      s: name,
+      apikey: apiKey,
+   });
+
+   try {
+      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
+
+      if (!response.ok) {
+         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+         return;
+      }
+
+      const result = await response.json();
+
+      console.log(result);
+
+      await Promise.all(
+         //!замена forEach на map + Promise.all
+         result.Search.map(async (element) => {
+            const filmImdbId = element.imdbID;
+            let filmPosterLink =
+               element.Poster === "N/A"
+                  ? IMAGE_TO_FILM_WITHOUT_POSTER
+                  : element.Poster;
+
+            const filmTitle = element.Title;
+            const filmYear = element.Year;
+            const filmType = element.Type;
+
+            const film = new FilmBanner(
+               filmImdbId,
+               filmPosterLink,
+               filmTitle,
+               filmYear,
+               filmType
+            );
+
+            addFilmToBill(film);
+         })
+      );
+
+      renderFilms();
+   } catch (error) {
+      filmErrorNode.textContent = `Ошибка API: ${error}`;
+   }
+}*/
+
+//!Валидация url на 404 не работает из-за cors
+/*const validationUrl = async (url, forNotFound) => {
+   try {
+      const response = await fetch(url, { mode: "no-cors" });
+
+      if (!response.ok) {
+         console.log(forNotFound);
+         return forNotFound;
+      }
+
+      console.log(url);
+      return url;
+   } catch (error) {
+      console.log(error);
+      return forNotFound;
+   }
+};
+
+validationUrl(
+   "https://m.media-amazon.com/images/M/MV5BMTQ2ODA5MTI5Nl5BMl5BanBnXkFtZTcwNTAzMjAyMQ@@._V1_SX300.jpg",
+   IMAGE_TO_FILM_WITHOUT_POSTER
+);*/
