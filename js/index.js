@@ -1,5 +1,5 @@
 const filmNameNode = document.getElementById("filmName");
-const filmSearchButton = document.getElementById("#filmSearchButton");
+const filmSearchButton = document.getElementById("filmSearchButton");
 const filmErrorNode = document.getElementById("filmError");
 const filmsOutputNode = document.getElementById("movies");
 
@@ -66,7 +66,7 @@ const renderFilms = () => {
    filmsOutputNode.appendChild(billContainer);
 };
 
-//замена fetch + then
+//!замена fetch + then
 async function searchFilmInApi(name) {
    const options = {
       method: "GET",
@@ -91,7 +91,7 @@ async function searchFilmInApi(name) {
       const result = await response.json();
 
       await Promise.all(
-         //замена forEach без Promise.all
+         //!замена forEach без Promise.all
          result.Search.map(async (element) => {
             const filmImdbId = element.imdbID;
             const filmPosterLink = element.Poster;
@@ -116,11 +116,66 @@ async function searchFilmInApi(name) {
    }
 }
 
-searchFilmInApi("gravity");
+//! вариант с замена fetch + then на async + fetch
+/*async function searchFilmInApi(name) {
+   const options = {
+      method: "GET",
+      headers: {
+         "Accept-Encoding": "application/json",
+      },
+   };
 
-//const clearFilmNode = () => (filmNameNode.value = "");
+   const queryParams = new URLSearchParams({
+      s: name,
+      apikey: apiKey,
+   });
 
-//buttonShowIdea.addEventListener("click", getActivity);
+   try {
+      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
+
+      if (!response.ok) {
+         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+         return;
+      }
+
+      const result = await response.json();
+
+      await Promise.all(
+         //!вариант с заменой forEach на map + Promise.all
+         result.Search.map(async (element) => {
+            const filmImdbId = element.imdbID;
+            const filmPosterLink = element.Poster;
+            const filmTitle = element.Title;
+            const filmYear = element.Year;
+            const filmType = element.Type;
+
+            const film = new FilmBanner(
+               filmImdbId,
+               filmPosterLink,
+               filmTitle,
+               filmYear,
+               filmType
+            );
+
+            addFilmToBill(film);
+         })
+      );
+      renderFilms();
+   } catch (error) {
+      filmErrorNode.textContent = `Ошибка API: ${error}`;
+   }
+}*/
+
+const clearFilmNode = () => (filmNameNode.value = "");
+
+const searchFilmHandler = () => {
+   const filmFromUser = filmNameNode.value;
+
+   searchFilmInApi(filmFromUser);
+   clearFilmNode();
+};
+
+filmSearchButton.addEventListener("click", searchFilmHandler);
 
 /*const saveFilmsToLocalStorage = () => {
    const filmsString = JSON.stringify(films);
