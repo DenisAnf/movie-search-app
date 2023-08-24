@@ -87,6 +87,8 @@ const searchFilmInApi = (name) => {
       .then((response) => {
          if (!response.ok) {
             filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+            filmSearchButton.disabled = false;
+            filmsOutputNode.textContent = "";
          }
          return response.json();
       })
@@ -114,10 +116,13 @@ const searchFilmInApi = (name) => {
             addFilmToBill(film);
          });
          renderFilms();
+         filmSearchButton.disabled = false;
       })
 
       .catch((error) => {
          filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
+         filmSearchButton.disabled = false;
+         filmsOutputNode.textContent = "";
       });
 };
 
@@ -191,6 +196,8 @@ const searchFilmHandler = () => {
 
    films = [];
    filmErrorNode.textContent = "";
+   filmSearchButton.disabled = true;
+   filmsOutputNode.textContent = "Загрузка...";
 
    const filmNameFromUser = filmNameNode.value;
 
@@ -239,7 +246,7 @@ filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
 
 //! вариант с заменой fetch + then на async + fetch
-/*async function searchFilmInApi(name) {
+/*const searchFilmInApi = (name) => {
    const options = {
       method: "GET",
       headers: {
@@ -252,21 +259,18 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
       apikey: apiOmdbKey,
    });
 
-   try {
-      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
+   fetch(`${apiOmdbLink}?${queryParams}`, options)
+      .then((response) => {
+         if (!response.ok) {
+            filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+            filmSearchButton.disabled = false;
+            filmsOutputNode.textContent = "";
+         }
+         return response.json();
+      })
 
-      if (!response.ok) {
-         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
-         return;
-      }
-
-      const result = await response.json();
-
-      console.log(result);
-
-      await Promise.all(
-         //!замена forEach на map + Promise.all
-         result.Search.map(async (element) => {
+      .then((data) => {
+         data.Search.forEach((element) => {
             const filmImdbId = element.imdbID;
             let filmPosterLink =
                element.Poster === "N/A"
@@ -286,14 +290,17 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
             );
 
             addFilmToBill(film);
-         })
-      );
+         });
+         renderFilms();
+         filmSearchButton.disabled = false;
+      })
 
-      renderFilms();
-   } catch (error) {
-      filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
-   }
-}
+      .catch((error) => {
+         filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
+         filmSearchButton.disabled = false;
+         filmsOutputNode.textContent = "";
+      });
+};
 
 const translate = async (textToTranslate) => {
    const options = {
@@ -332,11 +339,13 @@ const translate = async (textToTranslate) => {
    }
 };
 
-const searchFilmHandler = () => {
+cconst searchFilmHandler = () => {
    if (validationFilmNameFromUser()) return;
 
    films = [];
    filmErrorNode.textContent = "";
+   filmSearchButton.disabled = true;
+   filmsOutputNode.textContent = "Загрузка...";
 
    const filmNameFromUser = filmNameNode.value;
 

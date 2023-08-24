@@ -138,6 +138,7 @@ body {
 .movies {
    border-radius: 10px;
    background: #232323;
+   text-align: center;
 
    @media (max-width: 699px) {
       border-radius: calcSize(10, 20, 320, 699);
