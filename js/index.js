@@ -240,6 +240,16 @@ const searchFilmByEnter = (event) => {
    }
 };
 
+const showFilm = (event) => {
+   if (event.target.classList.contains("movies__list-item")) {
+      const idFilmItem = event.target.id;
+      console.log(idFilmItem);
+   } else if (event.target.closest(".movies__list-item")) {
+      const idFilmItem = event.target.closest(".movies__list-item").id;
+      console.log(idFilmItem);
+   }
+};
+
 const init = () => {
    getFilmsFromLocalStorage();
    renderFilms();
@@ -249,6 +259,7 @@ init();
 
 filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
+filmsOutputNode.addEventListener("click", showFilm);
 
 //! вариант с заменой fetch + then на async + fetch
 /*async function searchFilmInApi(name) {
