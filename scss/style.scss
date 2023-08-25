@@ -32,20 +32,18 @@ body {
 }
 
 .header {
-   margin: 40px 0 20px;
+   margin: 40px 0;
 
    @media (max-width: 699px) {
       margin: calcSize(20, 40, 320, 699) 0 20px;
    }
 
    &__title {
-      margin-bottom: 30px;
       font-size: 36px;
-      line-height: 32px;
+      line-height: 40px;
       padding: 0 40px;
 
       @media (max-width: 699px) {
-         margin-bottom: calcSize(20, 30, 320, 699);
          font-size: calcSize(24, 36, 320, 699);
          padding: 0 calcSize(20, 40, 320, 699);
       }
@@ -132,6 +130,31 @@ body {
             background-size: calcSize(25, 35, 320, 699);
          }
       }
+
+      &:disabled {
+         cursor: not-allowed;
+         pointer-events: none;
+         background-color: grey;
+      }
+   }
+}
+
+.animation-loading {
+   font-size: 24px;
+   line-height: 50px;
+   font-family: Helvetica, sans-serif, Arial;
+   animation: load 2s infinite 0s ease-in;
+   animation-direction: alternate;
+   text-shadow: 0 0 1px white;
+}
+
+@keyframes load {
+   0% {
+   }
+   100% {
+      opacity: 0.2;
+      filter: blur(5px);
+      letter-spacing: 3px;
    }
 }
 
@@ -203,7 +226,8 @@ body {
 
       @media (max-width: 699px) {
          gap: calcSize(15, 30, 320, 699);
-         height: calcSize(100, 216, 320, 699);
+         height: calcSize(90, 200, 320, 699);
+         min-height: calcSize(90, 200, 320, 699);
          padding: calcSize(7, 20, 320, 699);
          border-radius: calcSize(8, 10, 320, 699);
       }
@@ -216,6 +240,13 @@ body {
       height: 100%;
       object-fit: contain;
       object-position: center;
+      font-size: 16px;
+      line-height: 16px;
+
+      @media (max-width: 699px) {
+         font-size: calcSize(10, 16, 320, 699);
+         line-height: calcSize(10, 16, 320, 699);
+      }
    }
 
    &__description {

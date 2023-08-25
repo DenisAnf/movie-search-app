@@ -6,7 +6,7 @@ const filmsOutputNode = document.getElementById("movies");
 const IMAGE_TO_FILM_WITHOUT_POSTER = "./resourses/img/searchMovie.webp";
 const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
-//const STORAGE_LABEL_MOVIES = "movies";
+const STORAGE_LABEL_MOVIES = "films";
 
 let films = [];
 
@@ -23,6 +23,21 @@ function FilmBanner(id, img, title, year, type) {
    this.year = year;
    this.type = type;
 }
+
+const saveFilmsToLocalStorage = () => {
+   const filmsString = JSON.stringify(films);
+   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
+};
+
+const getFilmsFromLocalStorage = () => {
+   const filmsFromLocalStorageString =
+      localStorage.getItem(STORAGE_LABEL_MOVIES);
+   const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
+
+   if (Array.isArray(filmsFromLocalStorage)) {
+      films = filmsFromLocalStorage;
+   }
+};
 
 const addFilmToBill = (film) => films.push(film);
 
@@ -115,6 +130,7 @@ const searchFilmInApi = (name) => {
 
             addFilmToBill(film);
          });
+         saveFilmsToLocalStorage();
          renderFilms();
          filmSearchButton.disabled = false;
       })
@@ -126,7 +142,7 @@ const searchFilmInApi = (name) => {
       });
 };
 
-const translate = async (textToTranslate) => {
+const translateToSearch = (textToTranslate) => {
    const options = {
       method: "GET",
       headers: {
@@ -142,25 +158,23 @@ const translate = async (textToTranslate) => {
       q: textToTranslate,
    });
 
-   try {
-      const response = await fetch(
-         `${apiTranslateLink}?${queryParams}`,
-         options
-      );
-
-      if (!response.ok) {
-         //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
-         return textToTranslate;
-      }
-
-      const result = await response.json();
-      const translatedText = result.matches[0].translation;
-      //console.log(`${textToTranslate} перевод ${translatedText}`);
-      return translatedText;
-   } catch (error) {
-      //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
-      return textToTranslate;
-   }
+   return fetch(`${apiTranslateLink}?${queryParams}`, options)
+      .then((response) => {
+         if (!response.ok) {
+            //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
+            searchFilmInApi(textToTranslate);
+         }
+         return response.json();
+      })
+      .then((result) => {
+         const translatedText = result.matches[0].translation;
+         //console.log(`${textToTranslate} перевод ${translatedText}`);
+         searchFilmInApi(translatedText);
+      })
+      .catch((error) => {
+         //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
+         searchFilmInApi(textToTranslate);
+      });
 };
 
 const clearFilmNode = () => (filmNameNode.value = "");
@@ -191,21 +205,25 @@ const validationFilmNameFromUser = () => {
    return false;
 };
 
+const loading = () => {
+   filmsOutputNode.innerHTML = "";
+   const load = document.createElement("div");
+   load.className = "animation-loading";
+   load.innerText = "Загрузка";
+   filmsOutputNode.appendChild(load);
+};
+
 const searchFilmHandler = () => {
    if (validationFilmNameFromUser()) return;
 
    films = [];
    filmErrorNode.textContent = "";
    filmSearchButton.disabled = true;
-   filmsOutputNode.textContent = "Загрузка...";
+   loading();
 
    const filmNameFromUser = filmNameNode.value;
+   translateToSearch(filmNameFromUser);
 
-   const getTranslation = async () => {
-      const filmNameAfterTranslation = await translate(filmNameFromUser);
-      searchFilmInApi(filmNameAfterTranslation);
-   };
-   getTranslation();
    clearFilmNode();
 };
 
@@ -218,35 +236,17 @@ const searchFilmByEnter = (event) => {
 };
 
 const init = () => {
-   //getFilmsFromLocalStorage();
-   //renderFilms();
+   getFilmsFromLocalStorage();
+   renderFilms();
    filmNameNode.focus();
 };
 init();
-
-//saveFilmsToLocalStorage();
-
-//?СТАРОЕ
-/*const saveFilmsToLocalStorage = () => {
-   const filmsString = JSON.stringify(films);
-   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
-};
-
-const getFilmsFromLocalStorage = () => {
-   const filmsFromLocalStorageString =
-      localStorage.getItem(STORAGE_LABEL_MOVIES);
-   const filmsFromLocalStorage = JSON.parse(filmsFromLocalStorageString);
-
-   if (Array.isArray(filmsFromLocalStorage)) {
-      films = filmsFromLocalStorage;
-   }
-};*/
 
 filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
 
 //! вариант с заменой fetch + then на async + fetch
-/*const searchFilmInApi = (name) => {
+/*async function searchFilmInApi(name) {
    const options = {
       method: "GET",
       headers: {
@@ -259,18 +259,21 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
       apikey: apiOmdbKey,
    });
 
-   fetch(`${apiOmdbLink}?${queryParams}`, options)
-      .then((response) => {
-         if (!response.ok) {
-            filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
-            filmSearchButton.disabled = false;
-            filmsOutputNode.textContent = "";
-         }
-         return response.json();
-      })
+   try {
+      const response = await fetch(`${apiOmdbLink}?${queryParams}`, options);
 
-      .then((data) => {
-         data.Search.forEach((element) => {
+      if (!response.ok) {
+         filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+         return;
+      }
+
+      const result = await response.json();
+
+      console.log(result);
+
+      await Promise.all(
+         //!замена forEach на map + Promise.all
+         result.Search.map(async (element) => {
             const filmImdbId = element.imdbID;
             let filmPosterLink =
                element.Poster === "N/A"
@@ -290,17 +293,14 @@ filmNameNode.addEventListener("keydown", searchFilmByEnter);
             );
 
             addFilmToBill(film);
-         });
-         renderFilms();
-         filmSearchButton.disabled = false;
-      })
+         })
+      );
 
-      .catch((error) => {
-         filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
-         filmSearchButton.disabled = false;
-         filmsOutputNode.textContent = "";
-      });
-};
+      renderFilms();
+   } catch (error) {
+      filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
+   }
+}
 
 const translate = async (textToTranslate) => {
    const options = {
@@ -339,13 +339,13 @@ const translate = async (textToTranslate) => {
    }
 };
 
-cconst searchFilmHandler = () => {
+const searchFilmHandler = () => {
    if (validationFilmNameFromUser()) return;
 
    films = [];
    filmErrorNode.textContent = "";
    filmSearchButton.disabled = true;
-   filmsOutputNode.textContent = "Загрузка...";
+   loading();
 
    const filmNameFromUser = filmNameNode.value;
 
