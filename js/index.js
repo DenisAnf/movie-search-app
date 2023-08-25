@@ -44,6 +44,11 @@ const addFilmToBill = (film) => films.push(film);
 const getFilms = () => films;
 
 const renderFilms = () => {
+   if (films.length === 0) {
+      filmsOutputNode.innerText = "Пока ничего не искали...";
+      return;
+   }
+
    filmsOutputNode.innerHTML = "";
 
    const billContainer = document.createElement("ul");

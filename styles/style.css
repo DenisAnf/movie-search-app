@@ -230,6 +230,7 @@ body {
   border-radius: 10px;
   background: #232323;
   text-align: center;
+  padding: 20px;
 }
 @media (max-width: 699px) {
   .movies {
@@ -241,7 +242,7 @@ body {
   flex-direction: column;
   max-height: 58vh;
   overflow-y: auto;
-  padding: 20px;
+  padding: 5px;
   scrollbar-width: thin;
   /* "auto" или "thin"  */
   scrollbar-color: #3a3939 #6532f8;
