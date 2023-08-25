@@ -142,7 +142,7 @@ const searchFilmInApi = (name) => {
       });
 };
 
-const translateToSearch = (textToTranslate) => {
+const searchFilmInApiWithTranslate = (textToTranslate) => {
    const options = {
       method: "GET",
       headers: {
@@ -222,7 +222,7 @@ const searchFilmHandler = () => {
    loading();
 
    const filmNameFromUser = filmNameNode.value;
-   translateToSearch(filmNameFromUser);
+   searchFilmInApiWithTranslate(filmNameFromUser);
 
    clearFilmNode();
 };
