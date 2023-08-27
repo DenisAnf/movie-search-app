@@ -8,25 +8,20 @@ const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
 const STORAGE_LABEL_MOVIES = "films";
 
-let films = [];
-
 const apiOmdbLink = "//www.omdbapi.com/";
 const apiOmdbKey = "e47d08b8";
 const apiTranslateLink =
    "https://translated-mymemory---translation-memory.p.rapidapi.com/get";
 const apiTranslateKey = "9ffd4a8b32mshe8145e4c83e463bp1d5e15jsnfaa3c9332f3f";
 
-function FilmBanner(id, img, title, year, type) {
-   this.id = id;
-   this.img = img;
-   this.title = title;
-   this.year = year;
-   this.type = type;
-}
+let films = [];
+
+const getFilms = () => films;
 
 const saveFilmsToLocalStorage = () => {
-   const filmsString = JSON.stringify(films);
-   localStorage.setItem(STORAGE_LABEL_MOVIES, filmsString);
+   const movies = getFilms();
+   const moviesString = JSON.stringify(movies);
+   localStorage.setItem(STORAGE_LABEL_MOVIES, moviesString);
 };
 
 const getFilmsFromLocalStorage = () => {
@@ -39,23 +34,16 @@ const getFilmsFromLocalStorage = () => {
    }
 };
 
-const addFilmToBill = (film) => films.push(film);
-
-const getFilms = () => films;
-
-const renderFilms = () => {
-   if (films.length === 0) {
-      filmsOutputNode.innerText = "Пока ничего не искали...";
-      return;
-   }
-
-   filmsOutputNode.innerHTML = "";
-
+const bildFilmsHtml = (bill) => {
    const billContainer = document.createElement("ul");
    billContainer.className = "movies__list";
 
-   const bill = getFilms();
    bill.forEach((element) => {
+      let filmPosterLink =
+         element.Poster === "N/A"
+            ? IMAGE_TO_FILM_WITHOUT_POSTER
+            : element.Poster;
+
       const elFilm = document.createElement("li");
       const elFilmImage = document.createElement("img");
       const elFilmDescription = document.createElement("div");
@@ -70,13 +58,13 @@ const renderFilms = () => {
       elFilmYear.className = "movie__year";
       elFilmType.className = "movie__type";
 
-      elFilm.setAttribute("id", element.id);
-      elFilmImage.setAttribute("src", element.img);
+      elFilm.setAttribute("id", element.imdbID);
+      elFilmImage.setAttribute("src", filmPosterLink);
       elFilmImage.setAttribute("alt", "Постер фильма или сериала");
 
-      elFilmTitle.innerText = element.title;
-      elFilmYear.innerText = element.year;
-      elFilmType.innerText = element.type;
+      elFilmTitle.innerText = element.Title;
+      elFilmYear.innerText = element.Year;
+      elFilmType.innerText = element.Type;
 
       elFilm.appendChild(elFilmImage);
       elFilm.appendChild(elFilmDescription);
@@ -87,10 +75,23 @@ const renderFilms = () => {
       billContainer.appendChild(elFilm);
    });
 
-   filmsOutputNode.appendChild(billContainer);
+   return billContainer;
 };
 
-const searchFilmInApi = (name) => {
+const renderFilms = (filmsBill) => {
+   if (filmsBill.length === 0) {
+      filmsOutputNode.innerText = "Пока ничего не искали...";
+      return;
+   }
+
+   filmsOutputNode.innerHTML = "";
+
+   const filmsHtml = bildFilmsHtml(filmsBill);
+
+   filmsOutputNode.appendChild(filmsHtml);
+};
+
+const searchFilmsInApi = (name) => {
    const options = {
       method: "GET",
       headers: {
@@ -107,47 +108,27 @@ const searchFilmInApi = (name) => {
       .then((response) => {
          if (!response.ok) {
             filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
-            filmSearchButton.disabled = false;
             filmsOutputNode.textContent = "";
+            filmSearchButton.disabled = false;
          }
          return response.json();
       })
 
       .then((data) => {
-         data.Search.forEach((element) => {
-            const filmImdbId = element.imdbID;
-            let filmPosterLink =
-               element.Poster === "N/A"
-                  ? IMAGE_TO_FILM_WITHOUT_POSTER
-                  : element.Poster;
-
-            const filmTitle = element.Title;
-            const filmYear = element.Year;
-            const filmType = element.Type;
-
-            const film = new FilmBanner(
-               filmImdbId,
-               filmPosterLink,
-               filmTitle,
-               filmYear,
-               filmType
-            );
-
-            addFilmToBill(film);
-         });
+         films = data.Search;
          saveFilmsToLocalStorage();
-         renderFilms();
+         renderFilms(films);
          filmSearchButton.disabled = false;
       })
 
       .catch((error) => {
          filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
-         filmSearchButton.disabled = false;
          filmsOutputNode.textContent = "";
+         filmSearchButton.disabled = false;
       });
 };
 
-const searchFilmInApiWithTranslate = (textToTranslate) => {
+const getTranslation = async (nameFilmToTranslate) => {
    const options = {
       method: "GET",
       headers: {
@@ -160,26 +141,33 @@ const searchFilmInApiWithTranslate = (textToTranslate) => {
 
    const queryParams = new URLSearchParams({
       langpair: "ru|en",
-      q: textToTranslate,
+      q: nameFilmToTranslate,
    });
 
-   return fetch(`${apiTranslateLink}?${queryParams}`, options)
-      .then((response) => {
-         if (!response.ok) {
-            //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
-            searchFilmInApi(textToTranslate);
-         }
-         return response.json();
-      })
-      .then((result) => {
-         const translatedText = result.matches[0].translation;
-         //console.log(`${textToTranslate} перевод ${translatedText}`);
-         searchFilmInApi(translatedText);
-      })
-      .catch((error) => {
-         //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
-         searchFilmInApi(textToTranslate);
-      });
+   try {
+      const response = await fetch(
+         `${apiTranslateLink}?${queryParams}`,
+         options
+      );
+
+      if (!response.ok) {
+         //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
+         return nameFilmToTranslate;
+      }
+
+      const result = await response.json();
+      const translatedNameFilm = result.matches[0].translation;
+      //console.log(`${textToTranslate} перевод ${translatedText}`);
+      return translatedNameFilm;
+   } catch (error) {
+      //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
+      return nameFilmToTranslate;
+   }
+};
+
+const searchFilmsInApiWithTranslate = async (filmName) => {
+   const filmNameAfterTranslation = await getTranslation(filmName);
+   searchFilmsInApi(filmNameAfterTranslation);
 };
 
 const clearFilmNode = () => (filmNameNode.value = "");
@@ -210,24 +198,23 @@ const validationFilmNameFromUser = () => {
    return false;
 };
 
-const loading = () => {
+const preload = () => {
    filmsOutputNode.innerHTML = "";
-   const load = document.createElement("div");
-   load.className = "animation-loading";
-   load.innerText = "Загрузка";
-   filmsOutputNode.appendChild(load);
+   const loading = document.createElement("div");
+   loading.className = "animation-loading";
+   loading.innerText = "Загрузка";
+   filmsOutputNode.appendChild(loading);
 };
 
 const searchFilmHandler = () => {
    if (validationFilmNameFromUser()) return;
 
-   films = [];
-   filmErrorNode.textContent = "";
    filmSearchButton.disabled = true;
-   loading();
+
+   preload();
 
    const filmNameFromUser = filmNameNode.value;
-   searchFilmInApiWithTranslate(filmNameFromUser);
+   searchFilmsInApiWithTranslate(filmNameFromUser);
 
    clearFilmNode();
 };
@@ -236,23 +223,25 @@ const searchFilmByEnter = (event) => {
    if (event.keyCode === 13) {
       event.preventDefault();
       searchFilmHandler();
-      filmNameNode.focus();
    }
 };
 
 const showFilm = (event) => {
+   let idFilmItem;
+
    if (event.target.classList.contains("movies__list-item")) {
-      const idFilmItem = event.target.id;
-      console.log(idFilmItem);
+      idFilmItem = event.target.id;
    } else if (event.target.closest(".movies__list-item")) {
-      const idFilmItem = event.target.closest(".movies__list-item").id;
-      console.log(idFilmItem);
+      idFilmItem = event.target.closest(".movies__list-item").id;
    }
+
+   console.log(idFilmItem);
 };
 
 const init = () => {
    getFilmsFromLocalStorage();
-   renderFilms();
+   const movies = getFilms();
+   renderFilms(movies);
    filmNameNode.focus();
 };
 init();
@@ -260,6 +249,8 @@ init();
 filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
 filmsOutputNode.addEventListener("click", showFilm);
+
+//?----------------------- ДРУГИЕ ВАРИАНТЫ КОДА -----------------------
 
 //! вариант с заменой fetch + then на async + fetch
 /*async function searchFilmInApi(name) {
@@ -318,7 +309,8 @@ filmsOutputNode.addEventListener("click", showFilm);
    }
 }
 
-const translate = async (textToTranslate) => {
+//!замена async + try на fetch
+const searchFilmInApiWithTranslate = (textToTranslate) => {
    const options = {
       method: "GET",
       headers: {
@@ -334,44 +326,24 @@ const translate = async (textToTranslate) => {
       q: textToTranslate,
    });
 
-   try {
-      const response = await fetch(
-         `${apiTranslateLink}?${queryParams}`,
-         options
-      );
-
-      if (!response.ok) {
-         //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
-         return textToTranslate;
-      }
-
-      const result = await response.json();
-      const translatedText = result.matches[0].translation;
-      //console.log(`${textToTranslate} перевод ${translatedText}`);
-      return translatedText;
-   } catch (error) {
-      //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
-      return textToTranslate;
-   }
+   return fetch(`${apiTranslateLink}?${queryParams}`, options)
+      .then((response) => {
+         if (!response.ok) {
+            //console.log(`${textToTranslate} Ошибка загрузки перевода из API: ${response.status}`);
+            searchFilmInApi(textToTranslate);
+         }
+         return response.json();
+      })
+      .then((result) => {
+         const translatedText = result.matches[0].translation;
+         //console.log(`${textToTranslate} перевод ${translatedText}`);
+         searchFilmInApi(translatedText);
+      })
+      .catch((error) => {
+         //console.log(`${textToTranslate} Ошибка API перевода: ${error}`);
+         searchFilmInApi(textToTranslate);
+      });
 };
-
-const searchFilmHandler = () => {
-   if (validationFilmNameFromUser()) return;
-
-   films = [];
-   filmErrorNode.textContent = "";
-   filmSearchButton.disabled = true;
-   loading();
-
-   const filmNameFromUser = filmNameNode.value;
-
-   const getTranslation = async () => {
-      const filmNameAfterTranslation = await translate(filmNameFromUser);
-      searchFilmInApi(filmNameAfterTranslation);
-   };
-   getTranslation();
-   clearFilmNode();
-};*/
 
 //!Валидация url на 404 не работает из-за cors
 /*const validationUrl = async (url, forNotFound) => {
@@ -395,3 +367,38 @@ validationUrl(
    "https://m.media-amazon.com/images/M/MV5BMTQ2ODA5MTI5Nl5BMl5BanBnXkFtZTcwNTAzMjAyMQ@@._V1_SX300.jpg",
    IMAGE_TO_FILM_WITHOUT_POSTER
 );*/
+
+//?Старые версии кода
+/*function FilmBanner(id, img, title, year, type) {
+   this.id = id;
+   this.img = img;
+   this.title = title;
+   this.year = year;
+   this.type = type;
+}
+
+const addFilmToBill = (films) => films.push(films);
+
+const bildFilmsArray = (database) => {
+   database.forEach((element) => {
+      const filmImdbId = element.imdbID;
+      let filmPosterLink =
+         element.Poster === "N/A"
+            ? IMAGE_TO_FILM_WITHOUT_POSTER
+            : element.Poster;
+
+      const filmTitle = element.Title;
+      const filmYear = element.Year;
+      const filmType = element.Type;
+
+      const film = new FilmBanner(
+         filmImdbId,
+         filmPosterLink,
+         filmTitle,
+         filmYear,
+         filmType
+      );
+
+      addFilmToBill(film);
+   });
+};*/
