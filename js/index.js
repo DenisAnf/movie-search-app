@@ -7,6 +7,7 @@ const IMAGE_TO_FILM_WITHOUT_POSTER = "./resourses/img/searchMovie.webp";
 const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
 const STORAGE_LABEL_MOVIES = "films";
+const STORAGE_LABEL_MOVIE = "film";
 
 const apiOmdbLink = "//www.omdbapi.com/";
 const apiOmdbKey = "e47d08b8";
@@ -15,6 +16,7 @@ const apiTranslateLink =
 const apiTranslateKey = "9ffd4a8b32mshe8145e4c83e463bp1d5e15jsnfaa3c9332f3f";
 
 let films = [];
+let film = [];
 
 const getFilms = () => films;
 
@@ -78,6 +80,51 @@ const bildFilmsHtml = (bill) => {
    return billContainer;
 };
 
+const bildFilmHtml = (film) => {
+   const filmContainer = document.createElement("div");
+   filmContainer.innerText = film.Title;
+   filmContainer.className = "movies__list";
+
+   /*bill.forEach((element) => {
+      let filmPosterLink =
+         element.Poster === "N/A"
+            ? IMAGE_TO_FILM_WITHOUT_POSTER
+            : element.Poster;
+
+      const elFilm = document.createElement("li");
+      const elFilmImage = document.createElement("img");
+      const elFilmDescription = document.createElement("div");
+      const elFilmTitle = document.createElement("p");
+      const elFilmYear = document.createElement("p");
+      const elFilmType = document.createElement("p");
+
+      elFilm.className = "movies__list-item";
+      elFilmImage.className = "movie__img";
+      elFilmDescription.className = "movie__description";
+      elFilmTitle.className = "movie__title";
+      elFilmYear.className = "movie__year";
+      elFilmType.className = "movie__type";
+
+      elFilm.setAttribute("id", element.imdbID);
+      elFilmImage.setAttribute("src", filmPosterLink);
+      elFilmImage.setAttribute("alt", "Постер фильма или сериала");
+
+      elFilmTitle.innerText = element.Title;
+      elFilmYear.innerText = element.Year;
+      elFilmType.innerText = element.Type;
+
+      elFilm.appendChild(elFilmImage);
+      elFilm.appendChild(elFilmDescription);
+      elFilmDescription.appendChild(elFilmTitle);
+      elFilmDescription.appendChild(elFilmYear);
+      elFilmDescription.appendChild(elFilmType);
+
+      billContainer.appendChild(elFilm);
+   });*/
+
+   return filmContainer;
+};
+
 const renderFilms = (filmsBill) => {
    if (filmsBill.length === 0) {
       filmsOutputNode.innerText = "Пока ничего не искали...";
@@ -89,6 +136,19 @@ const renderFilms = (filmsBill) => {
    const filmsHtml = bildFilmsHtml(filmsBill);
 
    filmsOutputNode.appendChild(filmsHtml);
+};
+
+const renderFilm = (filmInfo) => {
+   if (filmInfo.length === 0) {
+      filmsOutputNode.innerText = "Данных о фильме нет";
+      return;
+   }
+
+   filmsOutputNode.innerHTML = "";
+
+   const filmHtml = bildFilmHtml(filmInfo);
+
+   filmsOutputNode.appendChild(filmHtml);
 };
 
 const searchFilmsInApi = (name) => {
@@ -125,6 +185,39 @@ const searchFilmsInApi = (name) => {
          filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
          filmsOutputNode.textContent = "";
          filmSearchButton.disabled = false;
+      });
+};
+
+const searchFilmInApiById = (id) => {
+   const options = {
+      method: "GET",
+      headers: {
+         "Accept-Encoding": "application/json",
+      },
+   };
+
+   const queryParams = new URLSearchParams({
+      i: id,
+      apikey: apiOmdbKey,
+   });
+
+   fetch(`${apiOmdbLink}?${queryParams}`, options)
+      .then((response) => {
+         if (!response.ok) {
+            filmErrorNode.textContent = `Ошибка загрузки из API: ${response.status}`;
+            filmsOutputNode.textContent = "";
+         }
+         return response.json();
+      })
+
+      .then((data) => {
+         film = data;
+         renderFilm(film);
+      })
+
+      .catch((error) => {
+         filmErrorNode.textContent = `Нет такого фильма`; //?Ошибка API: ${error}
+         filmsOutputNode.textContent = "";
       });
 };
 
@@ -235,7 +328,7 @@ const showFilm = (event) => {
       idFilmItem = event.target.closest(".movies__list-item").id;
    }
 
-   console.log(idFilmItem);
+   searchFilmInApiById(idFilmItem);
 };
 
 const init = () => {
