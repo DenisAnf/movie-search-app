@@ -295,7 +295,7 @@ body {
   }
 }
 
-.movie__img {
+.item__img {
   width: 25%;
   height: 100%;
   -o-object-fit: contain;
@@ -306,12 +306,12 @@ body {
   line-height: 16px;
 }
 @media (max-width: 699px) {
-  .movie__img {
+  .item__img {
     font-size: calc(0.0158311346 * 100vw + 4.9340369393px);
     line-height: calc(0.0158311346 * 100vw + 4.9340369393px);
   }
 }
-.movie__description {
+.item__description {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -321,40 +321,40 @@ body {
   text-align: left;
 }
 @media (max-width: 699px) {
-  .movie__description {
+  .item__description {
     padding: calc(0.0263852243 * 100vw + -8.4432717678px);
   }
 }
-.movie__title {
+.item__title {
   font-size: 28px;
   line-height: 28px;
   font-weight: 700;
   overflow: hidden;
 }
 @media (max-width: 699px) {
-  .movie__title {
+  .item__title {
     font-size: calc(0.036939314 * 100vw + 2.1794195251px);
     line-height: calc(0.036939314 * 100vw + 2.1794195251px);
   }
 }
-.movie__year {
+.item__year {
   font-size: 16px;
   line-height: 16px;
   color: #0094ff;
 }
 @media (max-width: 699px) {
-  .movie__year {
+  .item__year {
     font-size: calc(0.0158311346 * 100vw + 4.9340369393px);
     line-height: calc(0.0158311346 * 100vw + 4.9340369393px);
   }
 }
-.movie__type {
+.item__type {
   font-size: 20px;
   line-height: 20px;
   color: rgb(250, 235, 207);
 }
 @media (max-width: 699px) {
-  .movie__type {
+  .item__type {
     font-size: calc(0.0263852243 * 100vw + 1.5567282322px);
     line-height: calc(0.0263852243 * 100vw + 1.5567282322px);
   }

@@ -84,7 +84,7 @@ const bildFilmHtml = (film) => {
    const filmContainer = document.createElement("div");
    filmContainer.innerText = film.Title;
    filmContainer.className = "movies__list";
-
+   console.log(film);
    /*bill.forEach((element) => {
       let filmPosterLink =
          element.Poster === "N/A"
