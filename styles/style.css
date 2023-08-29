@@ -183,7 +183,7 @@ body {
   width: 62px;
   min-width: 62px;
   background: url("../resourses/img/icon/search.webp") center/40px no-repeat;
-  background-color: rgba(141, 119, 241, 0.99);
+  background-color: rgb(141, 119, 241);
   border-radius: 50%;
 }
 @media (max-width: 699px) {
@@ -196,7 +196,6 @@ body {
 }
 .form__searchBtn:hover {
   background-size: 45px;
-  background-color: rgb(142, 119, 241);
   transition: background-size 100ms linear;
 }
 @media (max-width: 699px) {
