@@ -183,7 +183,7 @@ body {
   width: 62px;
   min-width: 62px;
   background: url("../resourses/img/icon/search.webp") center/40px no-repeat;
-  background-color: rgba(141, 119, 241, 0.877);
+  background-color: rgba(141, 119, 241, 0.99);
   border-radius: 50%;
 }
 @media (max-width: 699px) {
@@ -231,6 +231,29 @@ body {
   background: #232323;
   text-align: center;
   padding: 20px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* "auto" или "thin"  */
+  scrollbar-color: #3a3939 #6532f8;
+  /* плашка скролла и дорожка */
+}
+.movies::-webkit-scrollbar {
+  width: 10px;
+  /* ширина scrollbar */
+}
+.movies::-webkit-scrollbar-track {
+  background: #6532f8;
+  /* цвет дорожки */
+  border-radius: 50px;
+  /* закругления дрожки */
+}
+.movies::-webkit-scrollbar-thumb {
+  background-color: #3a3939;
+  /* цвет плашки */
+  border-radius: 50px;
+  /* закругления плашки */
+  border: 2px solid #6532f8;
+  /* padding вокруг плашки */
 }
 @media (max-width: 699px) {
   .movies {
@@ -240,31 +263,7 @@ body {
 .movies__list {
   display: flex;
   flex-direction: column;
-  max-height: 58vh;
-  overflow-y: auto;
-  padding: 5px;
-  scrollbar-width: thin;
-  /* "auto" или "thin"  */
-  scrollbar-color: #3a3939 #6532f8;
-  /* плашка скролла и дорожка */
-}
-.movies__list::-webkit-scrollbar {
-  width: 10px;
-  /* ширина scrollbar */
-}
-.movies__list::-webkit-scrollbar-track {
-  background: #6532f8;
-  /* цвет дорожки */
-  border-radius: 50px;
-  /* закругления дрожки */
-}
-.movies__list::-webkit-scrollbar-thumb {
-  background-color: #3a3939;
-  /* цвет плашки */
-  border-radius: 50px;
-  /* закругления плашки */
-  border: 2px solid #6532f8;
-  /* padding вокруг плашки */
+  max-height: 53vh;
 }
 .movies__list-item {
   display: flex;
@@ -295,7 +294,7 @@ body {
   }
 }
 
-.item__img {
+.item__poster {
   width: 25%;
   height: 100%;
   -o-object-fit: contain;
@@ -306,7 +305,7 @@ body {
   line-height: 16px;
 }
 @media (max-width: 699px) {
-  .item__img {
+  .item__poster {
     font-size: calc(0.0158311346 * 100vw + 4.9340369393px);
     line-height: calc(0.0158311346 * 100vw + 4.9340369393px);
   }
@@ -357,6 +356,110 @@ body {
   .item__type {
     font-size: calc(0.0263852243 * 100vw + 1.5567282322px);
     line-height: calc(0.0263852243 * 100vw + 1.5567282322px);
+  }
+}
+
+.movie {
+  max-height: 53vh;
+  text-align: left;
+}
+.movie__backBtn {
+  background-color: #3a3939;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  padding: 0 10px;
+  font-size: 16px;
+  line-height: 40px;
+}
+@media (max-width: 699px) {
+  .movie__backBtn {
+    margin-bottom: calc(0.0263852243 * 100vw + 11.5567282322px);
+    font-size: calc(0.0052770449 * 100vw + 12.3113456464px);
+    line-height: calc(0.0263852243 * 100vw + 21.5567282322px);
+  }
+}
+.movie__backBtn:hover {
+  color: black;
+  background-color: rgb(142, 119, 241);
+  transition: all 100ms linear;
+}
+.movie__info {
+  display: flex;
+  gap: 30px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 20px;
+}
+@media (max-width: 699px) {
+  .movie__info {
+    gap: calc(0.0395778364 * 100vw + 2.3350923483px);
+  }
+}
+.movie__poster {
+  width: 40%;
+  max-height: 40vh;
+  -o-object-fit: contain;
+     object-fit: contain;
+  -o-object-position: top;
+     object-position: top;
+  padding-top: 10px;
+  font-size: 16px;
+  line-height: 16px;
+}
+@media (max-width: 699px) {
+  .movie__poster {
+    font-size: calc(0.0105540897 * 100vw + 8.6226912929px);
+    line-height: calc(0.0105540897 * 100vw + 8.6226912929px);
+  }
+}
+.movie__description {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (max-width: 699px) {
+  .movie__description {
+    gap: calc(0.0079155673 * 100vw + 4.4670184697px);
+  }
+}
+.movie__title {
+  margin-bottom: 10px;
+  font-size: 28px;
+  line-height: 28px;
+  font-weight: 700;
+}
+@media (max-width: 699px) {
+  .movie__title {
+    margin-bottom: calc(0.0131926121 * 100vw + 0.7783641161px);
+    font-size: calc(0.0316622691 * 100vw + 5.8680738786px);
+    line-height: calc(0.0316622691 * 100vw + 5.8680738786px);
+  }
+}
+.movie__data {
+  font-size: 16px;
+  line-height: 20px;
+}
+@media (max-width: 699px) {
+  .movie__data {
+    font-size: calc(0.0158311346 * 100vw + 4.9340369393px);
+    line-height: calc(0.0105540897 * 100vw + 8.6226912929px);
+  }
+}
+.movie__year, .movie__rated, .movie__released, .movie__runtime, .movie__genre, .movie__director, .movie__writer, .movie__actors {
+  color: #0094ff;
+}
+.movie__plot {
+  width: 100%;
+  text-align: center;
+  padding-bottom: 10px;
+  font-size: 16px;
+  line-height: 20px;
+}
+@media (max-width: 699px) {
+  .movie__plot {
+    font-size: calc(0.0105540897 * 100vw + 8.6226912929px);
+    line-height: calc(0.0105540897 * 100vw + 12.6226912929px);
   }
 }
 

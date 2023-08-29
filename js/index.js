@@ -54,11 +54,11 @@ const bildFilmsHtml = (bill) => {
       const elFilmType = document.createElement("p");
 
       elFilm.className = "movies__list-item";
-      elFilmImage.className = "movie__img";
-      elFilmDescription.className = "movie__description";
-      elFilmTitle.className = "movie__title";
-      elFilmYear.className = "movie__year";
-      elFilmType.className = "movie__type";
+      elFilmImage.className = "item__poster";
+      elFilmDescription.className = "item__description";
+      elFilmTitle.className = "item__title";
+      elFilmYear.className = "item__year";
+      elFilmType.className = "item__type";
 
       elFilm.setAttribute("id", element.imdbID);
       elFilmImage.setAttribute("src", filmPosterLink);

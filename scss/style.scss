@@ -111,7 +111,7 @@ body {
       width: 62px;
       min-width: 62px;
       background: url("../resourses/img/icon/search.webp") center/40px no-repeat;
-      background-color: rgba(141, 119, 241, 0.877);
+      background-color: rgba(141, 119, 241, 0.99);
       border-radius: 50%;
 
       @media (max-width: 699px) {
@@ -163,6 +163,36 @@ body {
    background: #232323;
    text-align: center;
    padding: 20px;
+   overflow-y: auto;
+
+   //!настройка скролл-барра
+   //скроллбары в Chrome/Edge/Safari
+   &::-webkit-scrollbar {
+      width: 10px;
+      /* ширина scrollbar */
+   }
+
+   &::-webkit-scrollbar-track {
+      background: #6532f8;
+      /* цвет дорожки */
+      border-radius: 50px;
+      /* закругления дрожки */
+   }
+
+   &::-webkit-scrollbar-thumb {
+      background-color: #3a3939;
+      /* цвет плашки */
+      border-radius: 50px;
+      /* закругления плашки */
+      border: 2px solid #6532f8;
+      /* padding вокруг плашки */
+   }
+
+   //скроллбары в Fifefox
+   scrollbar-width: thin;
+   /* "auto" или "thin"  */
+   scrollbar-color: #3a3939 #6532f8;
+   /* плашка скролла и дорожка */
 
    @media (max-width: 699px) {
       border-radius: calcSize(10, 20, 320, 699);
@@ -171,38 +201,7 @@ body {
    &__list {
       display: flex;
       flex-direction: column;
-      max-height: 58vh;
-      overflow-y: auto;
-      padding: 5px;
-
-      //!настройка скролл-барра
-      //скроллбары в Chrome/Edge/Safari
-      &::-webkit-scrollbar {
-         width: 10px;
-         /* ширина scrollbar */
-      }
-
-      &::-webkit-scrollbar-track {
-         background: #6532f8;
-         /* цвет дорожки */
-         border-radius: 50px;
-         /* закругления дрожки */
-      }
-
-      &::-webkit-scrollbar-thumb {
-         background-color: #3a3939;
-         /* цвет плашки */
-         border-radius: 50px;
-         /* закругления плашки */
-         border: 2px solid #6532f8;
-         /* padding вокруг плашки */
-      }
-
-      //скроллбары в Fifefox
-      scrollbar-width: thin;
-      /* "auto" или "thin"  */
-      scrollbar-color: #3a3939 #6532f8;
-      /* плашка скролла и дорожка */
+      max-height: 53vh;
    }
 
    &__list-item {
@@ -236,7 +235,7 @@ body {
 }
 
 .item {
-   &__img {
+   &__poster {
       width: 25%;
       height: 100%;
       object-fit: contain;
@@ -295,6 +294,117 @@ body {
       @media (max-width: 699px) {
          font-size: calcSize(10, 20, 320, 699);
          line-height: calcSize(10, 20, 320, 699);
+      }
+   }
+}
+
+.movie {
+   max-height: 53vh;
+   text-align: left;
+
+   &__backBtn {
+      background-color: #3a3939;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      padding: 0 10px;
+      font-size: 16px;
+      line-height: 40px;
+
+      @media (max-width: 699px) {
+         margin-bottom: calcSize(20, 30, 320, 699);
+         font-size: calcSize(14, 16, 320, 699);
+         line-height: calcSize(30, 40, 320, 699);
+      }
+
+      &:hover {
+         color: black;
+         background-color: rgb(142, 119, 241);
+         transition: all 100ms linear;
+      }
+   }
+
+   &__info {
+      display: flex;
+      gap: 30px;
+      justify-content: flex-start;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 20px;
+
+      @media (max-width: 699px) {
+         gap: calcSize(15, 30, 320, 699);
+      }
+   }
+
+   &__poster {
+      width: 40%;
+      max-height: 40vh;
+      object-fit: contain;
+      object-position: top;
+      padding-top: 10px;
+      font-size: 16px;
+      line-height: 16px;
+
+      @media (max-width: 699px) {
+         font-size: calcSize(12, 16, 320, 699);
+         line-height: calcSize(12, 16, 320, 699);
+      }
+   }
+
+   &__description {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      @media (max-width: 699px) {
+         gap: calcSize(7, 10, 320, 699);
+      }
+   }
+
+   &__title {
+      margin-bottom: 10px;
+      font-size: 28px;
+      line-height: 28px;
+      font-weight: 700;
+
+      @media (max-width: 699px) {
+         margin-bottom: calcSize(5, 10, 320, 699);
+         font-size: calcSize(16, 28, 320, 699);
+         line-height: calcSize(16, 28, 320, 699);
+      }
+   }
+
+   &__data {
+      font-size: 16px;
+      line-height: 20px;
+
+      @media (max-width: 699px) {
+         font-size: calcSize(10, 16, 320, 699);
+         line-height: calcSize(12, 16, 320, 699);
+      }
+   }
+
+   &__year,
+   &__rated,
+   &__released,
+   &__runtime,
+   &__genre,
+   &__director,
+   &__writer,
+   &__actors {
+      color: #0094ff;
+   }
+
+   &__plot {
+      width: 100%;
+      text-align: center;
+      padding-bottom: 10px;
+      font-size: 16px;
+      line-height: 20px;
+
+      @media (max-width: 699px) {
+         font-size: calcSize(12, 16, 320, 699);
+         line-height: calcSize(16, 20, 320, 699);
       }
    }
 }
