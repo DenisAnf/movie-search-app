@@ -365,7 +365,7 @@ body {
 .movie__backBtn {
   background-color: #3a3939;
   border-radius: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding: 0 10px;
   font-size: 16px;
   line-height: 40px;
@@ -397,7 +397,7 @@ body {
 }
 .movie__poster {
   width: 40%;
-  max-height: 40vh;
+  max-height: 35vh;
   -o-object-fit: contain;
      object-fit: contain;
   -o-object-position: top;

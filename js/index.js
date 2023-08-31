@@ -8,6 +8,7 @@ const LIMIT_LENGTH_FILM_NAME = 130;
 const REG_SPACES_PUNСTUATION_MARKS = /[ \t\r\n\p{P}\s]/gu;
 const STORAGE_LABEL_MOVIES = "films";
 const STORAGE_LABEL_MOVIE = "film";
+const MESSAGE_FOR_NOT_AVAILABLE_DATA = "Нет сведений";
 
 const apiOmdbLink = "//www.omdbapi.com/";
 const apiOmdbKey = "e47d08b8";
@@ -80,11 +81,41 @@ const bildFilmsHtml = (bill) => {
    return billContainer;
 };
 
+const checkDataForNA = (data) =>
+   data === "N/A" ? MESSAGE_FOR_NOT_AVAILABLE_DATA : data;
+
 const bildFilmHtml = (film) => {
    const filmContainer = document.createElement("div");
-   filmContainer.innerText = film.Title;
-   filmContainer.className = "movies__list";
-   console.log(film);
+   const filmButtonBack = document.createElement("button");
+   const filmInfo = document.createElement("div");
+   const filmImage = document.createElement("img");
+   const filmDescription = document.createElement("div");
+   const filmTitle = document.createElement("p");
+   const filmPlot = document.createElement("div");
+
+   filmContainer.className = "movie";
+   filmButtonBack.className = "movie__backBtn";
+   filmInfo.className = "movie__info";
+   filmImage.className = "movie__poster";
+   filmDescription.className = "movie__description";
+   filmTitle.className = "movie__title";
+   filmPlot.className = "movie__plot";
+
+   filmButtonBack.setAttribute("type", "button");
+   filmImage.setAttribute("src", checkDataForNA(film.Poster));
+   filmImage.setAttribute("alt", "Постер");
+
+   filmButtonBack.innerHTML = `&#9668; Назад к поиску`;
+   filmTitle.innerText = film.Title;
+   filmPlot.innerText = film.Plot;
+
+   filmContainer.appendChild(filmButtonBack);
+   filmContainer.appendChild(filmInfo);
+   filmInfo.appendChild(filmImage);
+   filmInfo.appendChild(filmDescription);
+   filmDescription.appendChild(filmTitle);
+   filmContainer.appendChild(filmPlot);
+
    /*bill.forEach((element) => {
       let filmPosterLink =
          element.Poster === "N/A"
@@ -320,15 +351,24 @@ const searchFilmByEnter = (event) => {
 };
 
 const showFilm = (event) => {
-   let idFilmItem;
-
    if (event.target.classList.contains("movies__list-item")) {
-      idFilmItem = event.target.id;
-   } else if (event.target.closest(".movies__list-item")) {
-      idFilmItem = event.target.closest(".movies__list-item").id;
-   }
+      preload();
 
-   searchFilmInApiById(idFilmItem);
+      const idFilmItem = event.target.id;
+      searchFilmInApiById(idFilmItem);
+   } else if (event.target.closest(".movies__list-item")) {
+      preload();
+
+      const idFilmItem = event.target.closest(".movies__list-item").id;
+      searchFilmInApiById(idFilmItem);
+   }
+};
+
+const backToSearchedFilms = (event) => {
+   if (event.target.classList.contains("movie__backBtn")) {
+      preload();
+      init();
+   }
 };
 
 const init = () => {
@@ -342,6 +382,7 @@ init();
 filmSearchButton.addEventListener("click", searchFilmHandler);
 filmNameNode.addEventListener("keydown", searchFilmByEnter);
 filmsOutputNode.addEventListener("click", showFilm);
+filmsOutputNode.addEventListener("click", backToSearchedFilms);
 
 //?----------------------- ДРУГИЕ ВАРИАНТЫ КОДА -----------------------
 
