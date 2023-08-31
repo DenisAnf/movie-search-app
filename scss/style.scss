@@ -118,7 +118,7 @@ body {
          height: calcSize(40, 62, 320, 699);
          width: calcSize(40, 62, 320, 699);
          min-width: calcSize(40, 62, 320, 699);
-         background-size: calcSize(20, 31, 320, 699);
+         background-size: calcSize(30, 40, 320, 699);
       }
 
       &:hover {
@@ -126,7 +126,7 @@ body {
          transition: background-size 100ms linear;
 
          @media (max-width: 699px) {
-            background-size: calcSize(25, 35, 320, 699);
+            background-size: calcSize(30, 40, 320, 699);
          }
       }
 
@@ -145,6 +145,11 @@ body {
    animation: load 2s infinite 0s ease-in;
    animation-direction: alternate;
    text-shadow: 0 0 1px white;
+
+   @media (max-width: 699px) {
+      font-size: calcSize(16, 24, 320, 699);
+      line-height: calcSize(30, 50, 320, 699);
+   }
 }
 
 @keyframes load {
@@ -383,14 +388,7 @@ body {
       }
    }
 
-   &__year,
-   &__rated,
-   &__released,
-   &__runtime,
-   &__genre,
-   &__director,
-   &__writer,
-   &__actors {
+   &__dataset {
       color: #0094ff;
    }
 

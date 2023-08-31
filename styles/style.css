@@ -191,7 +191,7 @@ body {
     height: calc(0.0580474934 * 100vw + 21.4248021108px);
     width: calc(0.0580474934 * 100vw + 21.4248021108px);
     min-width: calc(0.0580474934 * 100vw + 21.4248021108px);
-    background-size: calc(0.0290237467 * 100vw + 10.7124010554px);
+    background-size: calc(0.0263852243 * 100vw + 21.5567282322px);
   }
 }
 .form__searchBtn:hover {
@@ -200,7 +200,7 @@ body {
 }
 @media (max-width: 699px) {
   .form__searchBtn:hover {
-    background-size: calc(0.0263852243 * 100vw + 16.5567282322px);
+    background-size: calc(0.0263852243 * 100vw + 21.5567282322px);
   }
 }
 .form__searchBtn:disabled {
@@ -216,6 +216,12 @@ body {
   animation: load 2s infinite 0s ease-in;
   animation-direction: alternate;
   text-shadow: 0 0 1px white;
+}
+@media (max-width: 699px) {
+  .animation-loading {
+    font-size: calc(0.0211081794 * 100vw + 9.2453825858px);
+    line-height: calc(0.0527704485 * 100vw + 13.1134564644px);
+  }
 }
 
 @keyframes load {
@@ -445,7 +451,7 @@ body {
     line-height: calc(0.0105540897 * 100vw + 8.6226912929px);
   }
 }
-.movie__year, .movie__rated, .movie__released, .movie__runtime, .movie__genre, .movie__director, .movie__writer, .movie__actors {
+.movie__dataset {
   color: #0094ff;
 }
 .movie__plot {

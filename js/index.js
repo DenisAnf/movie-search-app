@@ -42,11 +42,6 @@ const bildFilmsHtml = (bill) => {
    billContainer.className = "movies__list";
 
    bill.forEach((element) => {
-      let filmPosterLink =
-         element.Poster === "N/A"
-            ? IMAGE_TO_FILM_WITHOUT_POSTER
-            : element.Poster;
-
       const elFilm = document.createElement("li");
       const elFilmImage = document.createElement("img");
       const elFilmDescription = document.createElement("div");
@@ -62,7 +57,7 @@ const bildFilmsHtml = (bill) => {
       elFilmType.className = "item__type";
 
       elFilm.setAttribute("id", element.imdbID);
-      elFilmImage.setAttribute("src", filmPosterLink);
+      elFilmImage.setAttribute("src", checkImageForNA(element.Poster));
       elFilmImage.setAttribute("alt", "Постер фильма или сериала");
 
       elFilmTitle.innerText = element.Title;
@@ -81,8 +76,28 @@ const bildFilmsHtml = (bill) => {
    return billContainer;
 };
 
+const checkImageForNA = (imageUrl) =>
+   imageUrl === "N/A" ? IMAGE_TO_FILM_WITHOUT_POSTER : imageUrl;
+
 const checkDataForNA = (data) =>
    data === "N/A" ? MESSAGE_FOR_NOT_AVAILABLE_DATA : data;
+
+function bildFilmDescriptionElement(title, address) {
+   const filmDescriptionEl = document.createElement("p");
+   const filmDescriptionElTitle = document.createElement("span");
+   const filmDescriptionElInfo = document.createElement("span");
+
+   filmDescriptionEl.className = "movie__data";
+   filmDescriptionElInfo.className = `movie__dataset`;
+
+   filmDescriptionElTitle.innerText = title;
+   filmDescriptionElInfo.innerText = checkDataForNA(address);
+
+   filmDescriptionEl.appendChild(filmDescriptionElTitle);
+   filmDescriptionEl.appendChild(filmDescriptionElInfo);
+
+   return filmDescriptionEl;
+}
 
 const bildFilmHtml = (film) => {
    const filmContainer = document.createElement("div");
@@ -102,12 +117,12 @@ const bildFilmHtml = (film) => {
    filmPlot.className = "movie__plot";
 
    filmButtonBack.setAttribute("type", "button");
-   filmImage.setAttribute("src", checkDataForNA(film.Poster));
+   filmImage.setAttribute("src", checkImageForNA(film.Poster));
    filmImage.setAttribute("alt", "Постер");
 
-   filmButtonBack.innerHTML = `&#9668; Назад к поиску`;
+   filmButtonBack.innerHTML = "&#9668; Назад к поиску";
    filmTitle.innerText = film.Title;
-   filmPlot.innerText = film.Plot;
+   filmPlot.innerText = checkDataForNA(film.Plot === "N/A" ? "" : film.Plot);
 
    filmContainer.appendChild(filmButtonBack);
    filmContainer.appendChild(filmInfo);
@@ -116,42 +131,28 @@ const bildFilmHtml = (film) => {
    filmDescription.appendChild(filmTitle);
    filmContainer.appendChild(filmPlot);
 
-   /*bill.forEach((element) => {
-      let filmPosterLink =
-         element.Poster === "N/A"
-            ? IMAGE_TO_FILM_WITHOUT_POSTER
-            : element.Poster;
-
-      const elFilm = document.createElement("li");
-      const elFilmImage = document.createElement("img");
-      const elFilmDescription = document.createElement("div");
-      const elFilmTitle = document.createElement("p");
-      const elFilmYear = document.createElement("p");
-      const elFilmType = document.createElement("p");
-
-      elFilm.className = "movies__list-item";
-      elFilmImage.className = "movie__img";
-      elFilmDescription.className = "movie__description";
-      elFilmTitle.className = "movie__title";
-      elFilmYear.className = "movie__year";
-      elFilmType.className = "movie__type";
-
-      elFilm.setAttribute("id", element.imdbID);
-      elFilmImage.setAttribute("src", filmPosterLink);
-      elFilmImage.setAttribute("alt", "Постер фильма или сериала");
-
-      elFilmTitle.innerText = element.Title;
-      elFilmYear.innerText = element.Year;
-      elFilmType.innerText = element.Type;
-
-      elFilm.appendChild(elFilmImage);
-      elFilm.appendChild(elFilmDescription);
-      elFilmDescription.appendChild(elFilmTitle);
-      elFilmDescription.appendChild(elFilmYear);
-      elFilmDescription.appendChild(elFilmType);
-
-      billContainer.appendChild(elFilm);
-   });*/
+   filmDescription.appendChild(bildFilmDescriptionElement("Год: ", film.Year));
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Рейтинг: ", film.Rated)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Дата выхода: ", film.Released)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Продолжительность: ", film.Runtime)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Жанр: ", film.Genre)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Режиссер: ", film.Director)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Сценарий: ", film.Writer)
+   );
+   filmDescription.appendChild(
+      bildFilmDescriptionElement("Актеры: ", film.Actors)
+   );
 
    return filmContainer;
 };
@@ -290,7 +291,10 @@ const getTranslation = async (nameFilmToTranslate) => {
 };
 
 const searchFilmsInApiWithTranslate = async (filmName) => {
-   const filmNameAfterTranslation = await getTranslation(filmName);
+   const filmNameLowerCase = filmName.toLowerCase();
+
+   const filmNameAfterTranslation = await getTranslation(filmNameLowerCase);
+
    searchFilmsInApi(filmNameAfterTranslation);
 };
 
