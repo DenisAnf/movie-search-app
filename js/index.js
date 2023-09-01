@@ -120,7 +120,7 @@ const bildFilmHtml = (film) => {
    filmImage.setAttribute("src", checkImageForNA(film.Poster));
    filmImage.setAttribute("alt", "Постер");
 
-   filmButtonBack.innerHTML = "&#9668; Назад к поиску";
+   filmButtonBack.innerHTML = "&#9668; Назад к результатам поиска";
    filmTitle.innerText = film.Title;
    filmPlot.innerText = checkDataForNA(film.Plot === "N/A" ? "" : film.Plot);
 
